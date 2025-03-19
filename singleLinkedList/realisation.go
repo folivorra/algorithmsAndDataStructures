@@ -101,6 +101,7 @@ func (l *LinkedList) Search(value int) (*Node, error) {
 		if iter.value == value {
 			return iter, nil
 		}
+		iter = iter.next
 	}
 
 	// если мы не нашли искомый элемент
