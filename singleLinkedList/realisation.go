@@ -34,6 +34,20 @@ func (l *LinkedList) AddInTail(value int) {
 	l.size++
 }
 
+// AddInHead добавляет node в начало списка со значением переданным в аргументе
+func (l *LinkedList) AddInHead(value int) {
+	newNode := Node{value: value, next: nil}
+
+	// если список пуст, то назначаем head и tail = node,
+	// иначе помещаем node в начало списка подменой указателей
+	if l.head == nil {
+		l.head, l.tail = &newNode, &newNode
+	} else {
+		newNode.next, l.head = l.head, &newNode
+	}
+	l.size++
+}
+
 // Remove удаляет node со значением переданным в аргументе
 func (l *LinkedList) Remove(value int) error {
 	// если список пуст, то удалить нечего
