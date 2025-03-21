@@ -12,6 +12,12 @@ func main() {
 	l.AddInTail(6)
 	l.Print()
 
+	reverseList(&l)
+
+	l.Print()
+}
+
+func reverseList(l *singleLinkedList.LinkedList) {
 	// создаем три указателя: next, current и prev
 	// изначально prev = nil, current = l.head, а next динамически передвигает на позицию current.next
 	current := l.Head
@@ -29,8 +35,6 @@ func main() {
 	}
 	// записываем в head prev так как current стал nil
 	l.Head = prev
-
-	l.Print()
 }
 
 /*
