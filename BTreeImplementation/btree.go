@@ -1,5 +1,7 @@
 package BTreeImplementation
 
+import "errors"
+
 /*
 T - это минимальная степень дерева, в узле может быть T-1 <= X <= 2T-1 ключей
 */
@@ -136,4 +138,32 @@ func (t *BTree) Insert(key int, value string) {
 	t.insertNonFull(t.root, key, value)
 }
 
-// TODO: доделать методы поиска и удаления!!!
+/*
+Search ищет значение по ключу,
+key - ключ для поиск,
+функция возвращает указатель на узел и индекс,
+по которым можно обратиться к искомому значению (node.pairs[i].value)
+
+количество обращений к диску =  O(h), где h - высота дерева
+время вычислений = O(t*logₜn), где n - кол-во узлов
+*/
+func (t *BTree) Search(key int) (string, error) {
+	if t.root == nil {
+		return "", errors.New("root is nil")
+	}
+	return searchRecursively(t.root, key)
+}
+
+func searchRecursively(node *BTreeNode, key int) (string, error) {
+	index := 0
+	for index < len(node.pairs) && key > node.pairs[index].key {
+		index++
+	}
+	if index < len(node.pairs) && key == node.pairs[index].key {
+		return node.pairs[index].value, nil
+	} else if node.leaf {
+		return "", errors.New("value not found")
+	} else {
+		return searchRecursively(node.children[index], key)
+	}
+}
