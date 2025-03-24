@@ -56,6 +56,8 @@ func (t *BTree) splitChild(parent *BTreeNode, i int) {
 
 	// перенос половины ключей в новый узел
 	rightNode.pairs = append(rightNode.pairs, child.pairs[T+1:]...)
+	// ключ для вставки в родительский узел
+	KVForInsert := KVPair{child.pairs[T].key, child.pairs[T].value}
 	// старый узел очищается на перенесенную половину
 	child.pairs = child.pairs[:T]
 
@@ -67,7 +69,7 @@ func (t *BTree) splitChild(parent *BTreeNode, i int) {
 
 	// вставка нового узла в родителя
 	// сначала поднимаем ключ в родительский узел на позицию i
-	parent.pairs = append(parent.pairs[:i], append([]KVPair{child.pairs[T]}, parent.pairs[i:]...)...)
+	parent.pairs = append(parent.pairs[:i], append([]KVPair{KVForInsert}, parent.pairs[i:]...)...)
 	// затем новосозданный узел с ключами большими чем child.pairs[T] добавляется в список детей родителя
 	parent.children = append(parent.children[:i+1], append([]*BTreeNode{rightNode}, parent.children[i+1:]...)...)
 }
@@ -96,16 +98,16 @@ func (t *BTree) insertNonFull(node *BTreeNode, key int, value string) {
 			i--
 		}
 		i++
-		// Если дочерний узел переполнен, разделяем его
+		// если дочерний узел переполнен, разделяем его
 		if len(node.children[i].pairs) == 2*T-1 {
 			t.splitChild(node, i)
-			// После разделения выбрать дочерний узел
+			// выбираем в какой из двух узлов пойдем
 			if key > node.pairs[i].key {
 				i++
 			}
 		}
 
-		// Рекурсивно вставляем в дочерний узел
+		// рекурсивно вставляем в дочерний узел
 		t.insertNonFull(node.children[i], key, value)
 	}
 }
@@ -133,3 +135,5 @@ func (t *BTree) Insert(key int, value string) {
 	// вставляем ключ в неполный узел
 	t.insertNonFull(t.root, key, value)
 }
+
+// TODO: доделать методы поиска и удаления!!!
