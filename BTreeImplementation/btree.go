@@ -50,8 +50,6 @@ parent - указатель на родительский узел,
 i - индекс переполненного потомка
 */
 func (t *BTree) splitChild(parent *BTreeNode, i int) {
-	// T это середина потомка по которому будет идти разрез
-	T := len(parent.children[i].pairs) / 2
 	child := parent.children[i]
 	// узел который будет отделяться "вправо"
 	rightNode := newNode(child.leaf)
@@ -131,6 +129,7 @@ func (t *BTree) Insert(key int, value string) {
 		oldRoot := t.root
 		t.root = newNode(false)
 		t.root.children = append(t.root.children, oldRoot)
+		// 0 потому что старый корень будет единственным потомком для нового корня
 		t.splitChild(t.root, 0)
 	}
 
@@ -144,7 +143,7 @@ key - ключ для поиск,
 функция возвращает указатель на узел и индекс,
 по которым можно обратиться к искомому значению (node.pairs[i].value)
 
-количество обращений к диску =  O(h), где h - высота дерева
+количество обращений к диску =  O(h), где h - высота дерева;
 время вычислений = O(t*logₜn), где n - кол-во узлов
 */
 func (t *BTree) Search(key int) (string, error) {
@@ -162,8 +161,34 @@ func searchRecursively(node *BTreeNode, key int) (string, error) {
 	if index < len(node.pairs) && key == node.pairs[index].key {
 		return node.pairs[index].value, nil
 	} else if node.leaf {
-		return "", errors.New("value not found")
+		return "", errors.New("key not found")
 	} else {
 		return searchRecursively(node.children[index], key)
+	}
+}
+
+/*
+Update обновляет значение по ключу,
+во всем работает аналогично методу Search
+*/
+func (t *BTree) Update(key int, value string) error {
+	if t.root == nil {
+		return errors.New("root is nil")
+	}
+	return updateRecursively(t.root, key, value)
+}
+
+func updateRecursively(node *BTreeNode, key int, value string) error {
+	index := 0
+	for index < len(node.pairs) && key > node.pairs[index].key {
+		index++
+	}
+	if index < len(node.pairs) && key == node.pairs[index].key {
+		node.pairs[index].value = value
+		return nil
+	} else if node.leaf {
+		return errors.New("key not found")
+	} else {
+		return updateRecursively(node.children[index], key, value)
 	}
 }
