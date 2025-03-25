@@ -16,10 +16,13 @@ func main() {
 	tree.Insert(30, "Value 30")
 	tree.Insert(7, "Value 7")
 	tree.Insert(17, "Value 17")
-	tmp, err := tree.Search(12)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	tmp, _ := tree.Search(12)
 	fmt.Println(tmp)
+	_ = tree.Update(12, "Value 52")
+	tmp, _ = tree.Search(12)
+	fmt.Println(tmp)
+	tree.Delete(6)
+	tree.Delete(7)
+	tree.Delete(12)
+	tree.Delete(10)
 }
