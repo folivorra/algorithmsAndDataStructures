@@ -54,6 +54,7 @@ parent - указатель на родительский узел,
 i - индекс переполненного потомка
 */
 func (t *BTree) splitChild(parent *BTreeNode, i int) {
+	T := T - 1
 	child := parent.children[i]
 	// узел который будет отделяться "вправо"
 	rightNode := newNode(child.leaf)
@@ -210,6 +211,9 @@ func (t *BTree) Delete(key int) {
 		return
 	} else {
 		deleteRecursively(t.root, key)
+		if len(t.root.pairs) == 0 && len(t.root.children) > 0 {
+			t.root = t.root.children[0]
+		}
 	}
 }
 
@@ -261,40 +265,86 @@ func deleteRecursively(node *BTreeNode, key int) {
 				в node.children[index] ключ-разделитель между данным узлом и соседним, на его место поместим
 				крайний ключ из соседнего узло и (если соседний узел нелистовой) переместим
 				соответсвующий указатель из соседнего узла в node.children[index];
-			2)
+			2)	если node.children[index] и оба соседа содержат T-1 ключей, объеденим node.children[index] с одним
+				из них, при этом бывший ключ-разделитель будет перенесен вниз и станет медианой нового узла.
 			далее мы рекурсивно удаляем key из соответствуюшего узла.
 		*/
 
 	} else if !node.leaf && !(index < len(node.pairs) && key == node.pairs[index].key) {
-		next := (index != len(node.children)-1) && (len(node.children[index+1].pairs) >= T)
-		prev := (index != 0) && (len(node.children[index-1].pairs) >= T)
-		if (len(node.children[index].pairs) == T-1) && prev {
+		next, prev := 0, 0
+		// проверка существования узлов и количества ключей у соседей
+		if index != len(node.children)-1 {
+			next = 1
+			if len(node.children[index+1].pairs) >= T {
+				next = 2
+			}
+		}
+		if index != 0 {
+			prev = 1
+			if len(node.children[index-1].pairs) >= T {
+				prev = 2
+			}
+		}
+		/*
+			1)	если у дочернего узла T-1 ключей и левый сосед имеет T ключей или
+				если у дочернего узла T-1 ключей и правый сосед имеет T ключей;
+			2)	если у дочернего узла и у всех соседей T-1 ключей;
+		*/
+		if (len(node.children[index].pairs) == T-1) && (prev == 2) { // 1)
 			leftNode := node.children[index-1]
 			child := node.children[index]
-
+			// копируем ключ-разделитель из родительского узла в дочерний
 			child.pairs = append([]KVPair{node.pairs[index-1]}, child.pairs...)
+			// на место него вставляем крайний ключ из соседнего узла
 			node.pairs[index-1] = leftNode.pairs[len(leftNode.pairs)-1]
 			leftNode.pairs = leftNode.pairs[:len(leftNode.pairs)-1]
-
+			// если соседний узел нелистовой, то переносим указатель на дочерний, для перенесенного ключа, узел в child
 			if !leftNode.leaf {
 				child.children = append([]*BTreeNode{leftNode.children[len(leftNode.children)-1]}, child.children...)
 				leftNode.children = leftNode.children[:len(leftNode.children)-1]
 			}
-		} else if (len(node.children[index].pairs) == T-1) && next {
+		} else if (len(node.children[index].pairs) == T-1) && (next == 2) { // 1)
 			rightNode := node.children[index+1]
 			child := node.children[index]
-
+			// копируем ключ-разделитель из родительского узла в дочерний
 			child.pairs = append(child.pairs, node.pairs[index])
+			// на место него вставляем крайний ключ из соседнего узла
 			node.pairs[index] = rightNode.pairs[0]
 			rightNode.pairs = rightNode.pairs[1:]
-
+			// если соседний узел нелистовой, то переносим указатель на дочерний, для перенесенного ключа, узел в child
 			if !rightNode.leaf {
 				child.children = append(child.children, rightNode.children[0])
 				rightNode.children = rightNode.children[1:]
 			}
-		} else {
-			// TODO: доделать последнее условие со слиянием узлов!!
+		} else if (len(node.children[index].pairs) == T-1) && (prev == 1) { // 2)
+			leftNode := node.children[index-1]
+			child := node.children[index]
+			// объединяем ключи из дочернего узла и левого соседнего, по середине вставив ключ-разделитель из родительского узла
+			child.pairs = append([]KVPair{node.pairs[index-1]}, child.pairs...)
+			child.pairs = append(leftNode.pairs, child.pairs...)
+			// если соседний узел нелистовой, то переносим всех потомков в child
+			if !leftNode.leaf {
+				child.children = append(leftNode.children, child.children...)
+			}
+			// убираем из родительского узла ключ-разделитель и указатель на узел который слился с child
+			node.pairs = append(node.pairs[:index-1], node.pairs[index:]...)
+			node.children = append(node.children[:index-1], node.children[index:]...)
+
+		} else if (len(node.children[index].pairs) == T-1) && (next == 1) { // 2)
+			nextNode := node.children[index+1]
+			child := node.children[index]
+			// объединяем ключи из дочернего узла и левого соседнего, по середине вставив ключ-разделитель из родительского узла
+			child.pairs = append(child.pairs, node.pairs[index])
+			child.pairs = append(child.pairs, nextNode.pairs...)
+			// если соседний узел нелистовой, то переносим всех потомков в child
+			if !nextNode.leaf {
+				child.children = append(nextNode.children, child.children...)
+			}
+			// убираем из родительского узла ключ-разделитель и указатель на узел который слился с child
+			node.pairs = append(node.pairs[:index], node.pairs[index+1:]...)
+			node.children = append(node.children[:index+1], node.children[index+2:]...)
 		}
+		// далее реркурсивно спускаемся по дереву
 		deleteRecursively(node.children[index], key)
 	}
 }
