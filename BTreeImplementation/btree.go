@@ -388,3 +388,5 @@ func searchRangeRecursively(node *BTreeNode, low, high int, results *[]string) {
 		searchRangeRecursively(node.children[index], low, high, results)
 	}
 }
+
+// TODO:  реализовать возможность сконфигуровать типы ключа и значения, а также сконфигуровать правило сравнения ключей
