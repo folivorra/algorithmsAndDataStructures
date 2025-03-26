@@ -348,3 +348,43 @@ func deleteRecursively(node *BTreeNode, key int) {
 		deleteRecursively(node.children[index], key)
 	}
 }
+
+/*
+SearchRange совершает поиск коллекции значений по заданному диапазону ключей,
+low и high - диапазон включенный ключей
+*/
+func (t *BTree) SearchRange(low, high int) ([]string, error) {
+	if t.root == nil {
+		return nil, errors.New("root is nil")
+	}
+	var results []string
+	searchRangeRecursively(t.root, low, high, &results)
+	if len(results) == 0 {
+		return nil, errors.New("no keys found in range")
+	}
+	return results, nil
+}
+
+func searchRangeRecursively(node *BTreeNode, low, high int, results *[]string) {
+	index := 0
+
+	// поиск ключа, который равен или больше ключа low
+	for index < len(node.pairs) && node.pairs[index].key < low {
+		index++
+	}
+
+	// как только нашли low, проверяем листовой ли он, чтобы спуститься в левого для этого ключа потомка и учесть все узлы
+	for index < len(node.pairs) && node.pairs[index].key <= high {
+		if !node.leaf {
+			searchRangeRecursively(node.children[index], low, high, results)
+		}
+		// после рекурсивного спуска, добавляем этот ключ в результат
+		*results = append(*results, node.pairs[index].value)
+		index++
+	}
+
+	// обходим последний (правый), если узел не листовой
+	if !node.leaf {
+		searchRangeRecursively(node.children[index], low, high, results)
+	}
+}

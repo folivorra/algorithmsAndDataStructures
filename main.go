@@ -2,6 +2,7 @@ package main
 
 import (
 	btree "algoAndDS/BTreeImplementation"
+	"fmt"
 )
 
 func main() {
@@ -14,12 +15,18 @@ func main() {
 	tree.Insert(67, "C")
 	tree.Insert(71, "G")
 	tree.Insert(68, "D")
-	tree.Insert(56, "F")
+	tree.Insert(56, "a")
 	tree.Insert(77, "F")
 	tree.Insert(81, "F")
-	tree.Insert(60, "F")
+	tree.Insert(60, "b")
 	tree.Insert(99, "F")
 	tree.Insert(84, "F")
-	tree.Insert(59, "F")
+	tree.Insert(59, "c")
 	tree.Insert(85, "F")
+	val, err := tree.SearchRange(50, 90)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(val)
+	}
 }
