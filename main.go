@@ -22,5 +22,4 @@ func main() {
 	tree.Insert(84, "F")
 	tree.Insert(59, "F")
 	tree.Insert(85, "F")
-
 }
