@@ -1,4 +1,4 @@
-package BloomFilter
+package BloomFilterImplementation
 
 import (
 	"hash"
