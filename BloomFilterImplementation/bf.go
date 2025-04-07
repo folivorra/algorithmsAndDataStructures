@@ -15,7 +15,7 @@ func NewBloomFilter(size int, hashCount int) *BloomFilter {
 	bits := make([]bool, size)
 	hashes := make([]hash.Hash64, hashCount)
 
-	for i := 0; i < size; i++ {
+	for i := 0; i < hashCount; i++ {
 		hashes[i] = fnv.New64()
 	}
 
