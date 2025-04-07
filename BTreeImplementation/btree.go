@@ -211,7 +211,7 @@ func (t *BTree) Delete(key int) {
 		return
 	} else {
 		deleteRecursively(t.root, key)
-		if len(t.root.pairs) == 0 && len(t.root.children) > 0 {
+		if len(t.root.pairs) == 0 && len(t.root.children) == 1 {
 			t.root = t.root.children[0]
 		}
 	}
