@@ -1,8 +1,8 @@
 /*
-Package BTreeImplementation вся реализация структуры btree написана согласно книге
+вся реализация структуры btree написана согласно книге
 "Алгоритмы: построение и анализ" за авторством Томаса Кормена и его коллег
 */
-package BTreeImplementation
+package main
 
 import "errors"
 
