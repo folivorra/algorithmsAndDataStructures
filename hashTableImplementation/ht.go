@@ -26,6 +26,8 @@ type HashFunc func(key int, size int) int
 
 type HashTableRehash struct {
 	items      []*itemRehash
+	count      int
+	loadFactor float64
 	size       int
 	hashFirst  HashFunc
 	hashSecond HashFunc
@@ -41,6 +43,26 @@ func h2(key int, size int) int {
 	return (key % (size - 1)) + 1
 }
 
+func (ht *HashTableRehash) resizeTable() {
+	newSize := ht.size * 2
+	newTable := make([]*itemRehash, newSize)
+	for i := 0; i < ht.size; i++ {
+		if ht.items[i] != nil && !ht.items[i].deleted {
+			indexFirst := ht.hashFirst(ht.items[i].key, newSize)
+			indexSecond := ht.hashSecond(ht.items[i].key, newSize)
+			for j := 0; j < newSize; j++ {
+				if newTable[indexFirst] == nil {
+					newTable[indexFirst] = ht.items[i]
+					break
+				}
+				indexFirst = (indexFirst + indexSecond) % newSize
+			}
+		}
+	}
+	ht.size = newSize
+	ht.items = newTable
+}
+
 // NewHashTableRehash нужно использовать простое число
 func NewHashTableRehash(size int) *HashTableRehash {
 	return &HashTableRehash{
@@ -48,10 +70,14 @@ func NewHashTableRehash(size int) *HashTableRehash {
 		size:       size,
 		hashFirst:  h1,
 		hashSecond: h2,
+		loadFactor: 0.65,
 	}
 }
 
 func (ht *HashTableRehash) Put(key int, value string) {
+	if float64(ht.count)/float64(ht.size) > ht.loadFactor {
+		ht.resizeTable()
+	}
 	indexFirst := ht.hashFirst(key, ht.size)
 	indexSecond := ht.hashSecond(key, ht.size)
 	for i := 0; i < ht.size; i++ {
@@ -65,7 +91,6 @@ func (ht *HashTableRehash) Put(key int, value string) {
 		}
 		indexFirst = (indexFirst + indexSecond) % ht.size
 	}
-	// TODO: resize()
 }
 
 func (ht *HashTableRehash) Get(key int) (string, error) {
