@@ -29,7 +29,6 @@ type HashFunc func(key int, size int) int
 type HashTableRehash struct {
 	items      []*itemRehash
 	count      int
-	loadFactor float64
 	size       int
 	hashFirst  HashFunc
 	hashSecond HashFunc
@@ -74,12 +73,11 @@ func NewHashTableRehash(size int) *HashTableRehash {
 		size:       size,
 		hashFirst:  h1,
 		hashSecond: h2,
-		loadFactor: 0.65,
 	}
 }
 
 func (ht *HashTableRehash) Put(key int, value string) {
-	if float64(ht.count)/float64(ht.size) > ht.loadFactor {
+	if float64(ht.count)/float64(ht.size) > 0.65 {
 		ht.resizeTable()
 	}
 	indexFirst := ht.hashFirst(key, ht.size)
