@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"hash"
 	"hash/fnv"
 )
@@ -22,6 +21,9 @@ type itemRehash struct {
 	deleted bool
 }
 
+// для ускорения выполнения(нет угрозы race condition)
+var hashFnv = fnv.New64()
+
 type HashFunc func(key int, size int) int
 
 type HashTableRehash struct {
@@ -34,9 +36,11 @@ type HashTableRehash struct {
 }
 
 func h1(key int, size int) int {
-	hashFunc := fnv.New64()
-	_, _ = hashFunc.Write([]byte(fmt.Sprintf("%d", key)))
-	return int(hashFunc.Sum64() % uint64(size))
+	buf := make([]byte, 8)
+	binary.LittleEndian.PutUint64(buf, uint64(key))
+	hashFnv.Reset()
+	_, _ = hashFnv.Write(buf)
+	return int(hashFnv.Sum64() % uint64(size))
 }
 
 func h2(key int, size int) int {

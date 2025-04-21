@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func BenchmarkHashTableChain(b *testing.B) {
-	ht := NewHashTableChain(101)
+	ht := NewHashTableChain(3571)
 	for i := 0; i < b.N; i++ {
 		ht.Put(i, "value")
 		_, _ = ht.Get(i)
@@ -13,7 +13,7 @@ func BenchmarkHashTableChain(b *testing.B) {
 }
 
 func BenchmarkHashTableRehash(b *testing.B) {
-	ht := NewHashTableRehash(101)
+	ht := NewHashTableRehash(3571)
 	for i := 0; i < b.N; i++ {
 		ht.Put(i, "value")
 		_, _ = ht.Get(i)
