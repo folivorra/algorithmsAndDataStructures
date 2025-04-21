@@ -17,6 +17,7 @@ func BenchmarkHashTableRehash(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		ht.Put(i, "value")
 		_, _ = ht.Get(i)
+		_ = ht.Update(i, "updated")
 		_ = ht.Delete(i)
 	}
 }

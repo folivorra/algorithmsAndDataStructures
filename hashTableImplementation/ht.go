@@ -21,7 +21,7 @@ type itemRehash struct {
 	deleted bool
 }
 
-// для ускорения выполнения(нет угрозы race condition)
+// для ускорения выполнения(если нет угрозы race condition)
 var hashFnv = fnv.New64()
 
 type HashFunc func(key int, size int) int
