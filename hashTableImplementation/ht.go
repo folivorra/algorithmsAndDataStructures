@@ -42,6 +42,7 @@ func h1(key int, size int) int {
 	return int(hashFnv.Sum64() % uint64(size))
 }
 
+// h2(key) должна быть взаимно проста с size
 func h2(key int, size int) int {
 	return (key % (size - 1)) + 1
 }
