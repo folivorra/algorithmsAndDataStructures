@@ -44,7 +44,6 @@ func TestSortSlices(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			got := sortSlices(tc.input...)
 			if !reflect.DeepEqual(got, tc.want) {
@@ -98,7 +97,6 @@ func TestFromMapToSlice(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			got := sortFromMapToSlice(tc.input...)
 			if !reflect.DeepEqual(got, tc.want) {
@@ -155,11 +153,70 @@ func TestAddSumKey(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			got := addSumKey(tc.input)
 			if !reflect.DeepEqual(got, tc.want) {
 				t.Errorf("addSumKey() = %v; want %v", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestDifference(t *testing.T) {
+	tests := []struct {
+		name string
+		a, b []int
+		want []int
+	}{
+		{
+			name: "both empty",
+			a:    []int{},
+			b:    []int{},
+			want: []int{},
+		},
+		{
+			name: "a non-empty, b empty",
+			a:    []int{1, 2, 3},
+			b:    []int{},
+			want: []int{1, 2, 3},
+		},
+		{
+			name: "a empty, b non-empty",
+			a:    []int{},
+			b:    []int{1, 2, 3},
+			want: []int{},
+		},
+		{
+			name: "no common elements",
+			a:    []int{1, 3, 5},
+			b:    []int{2, 4, 6},
+			want: []int{1, 3, 5},
+		},
+		{
+			name: "some common, with duplicates in a",
+			a:    []int{1, 2, 3, 2},
+			b:    []int{2, 4},
+			want: []int{1, 3},
+		},
+		{
+			name: "duplicates only in a",
+			a:    []int{1, 1, 2},
+			b:    []int{2},
+			want: []int{1, 1},
+		},
+		{
+			name: "b covers all of a",
+			a:    []int{1, 2},
+			b:    []int{1, 2, 3},
+			want: []int{},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := subtractSlices(tc.a, tc.b)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("substactSlices(%v, %v) = %v; want %v", tc.a, tc.b, got, tc.want)
 			}
 		})
 	}

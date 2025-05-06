@@ -65,3 +65,24 @@ func addSumKey(m map[string]struct{}) map[string]struct{} {
 
 	return m
 }
+
+/*
+Найти разницу двух слайсов и записать её в третий и вернуть его.
+*/
+
+func subtractSlices(arr1, arr2 []int) []int {
+	m2 := make(map[int]struct{}, len(arr2))
+	res := make([]int, 0)
+
+	for _, v := range arr2 {
+		m2[v] = struct{}{}
+	}
+
+	for _, v := range arr1 {
+		if _, exists := m2[v]; !exists {
+			res = append(res, v)
+		}
+	}
+
+	return res
+}
