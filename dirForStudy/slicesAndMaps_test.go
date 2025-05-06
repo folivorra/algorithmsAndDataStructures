@@ -107,3 +107,60 @@ func TestFromMapToSlice(t *testing.T) {
 		})
 	}
 }
+
+func TestAddSumKey(t *testing.T) {
+	tests := []struct {
+		name  string
+		input map[string]struct{}
+		want  map[string]struct{}
+	}{
+		{
+			name:  "empty map",
+			input: map[string]struct{}{},
+			want:  map[string]struct{}{},
+		},
+		{
+			name:  "single key",
+			input: map[string]struct{}{"x": {}},
+			want:  map[string]struct{}{"x": {}},
+		},
+		{
+			name:  "two keys",
+			input: map[string]struct{}{"b": {}, "a": {}},
+			want: map[string]struct{}{
+				"a":  {},
+				"b":  {},
+				"ba": {},
+			},
+		},
+		{
+			name:  "composite already exists",
+			input: map[string]struct{}{"a": {}, "b": {}, "ba": {}},
+			want: map[string]struct{}{
+				"a":  {},
+				"b":  {},
+				"ba": {},
+			},
+		},
+		{
+			name:  "multiple keys",
+			input: map[string]struct{}{"d": {}, "b": {}, "a": {}},
+			want: map[string]struct{}{
+				"a":  {},
+				"b":  {},
+				"d":  {},
+				"ba": {},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := addSumKey(tc.input)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("addSumKey() = %v; want %v", got, tc.want)
+			}
+		})
+	}
+}

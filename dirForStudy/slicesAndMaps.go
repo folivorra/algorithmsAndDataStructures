@@ -4,6 +4,10 @@ import (
 	"sort"
 )
 
+/*
+На вход приходят бесконечное число слайсов интов разной длины. На выходе вернуть один слайс из отсортированных значений.
+*/
+
 func sortSlices(arrays ...[]int) []int {
 	res := make([]int, 0)
 	for _, array := range arrays {
@@ -12,6 +16,11 @@ func sortSlices(arrays ...[]int) []int {
 	sort.Ints(res)
 	return res
 }
+
+/*
+Заполнение мапы из нескольких неотсортированных слайсов только теми ключами, которых нет в мапе.
+Затем перезаписать в новый слайс (и вернуть его) отсортированные значения из мапы.
+*/
 
 func sortFromMapToSlice(arrays ...[]int) []int {
 	tempArr := make([]int, 0)
@@ -30,4 +39,29 @@ func sortFromMapToSlice(arrays ...[]int) []int {
 	}
 	sort.Ints(res)
 	return res
+}
+
+/*
+Взять 2 "первых" ключа из мапы и добавить новый составленный из них в
+мапу, если такого ключа ещё нет в мапе. После чего вернуть мапу из функции.
+*/
+
+func addSumKey(m map[string]struct{}) map[string]struct{} {
+	slice := make([]string, 0)
+
+	for k := range m {
+		slice = append(slice, k)
+	}
+	sort.Strings(slice)
+
+	if len(slice) < 2 {
+		return m
+	}
+
+	newKey := slice[1] + slice[0] // если наоборот то кейс при котором их комбинация уже существует - невозможен
+	if _, exists := m[newKey]; !exists {
+		m[newKey] = struct{}{}
+	}
+
+	return m
 }
