@@ -221,3 +221,66 @@ func TestDifference(t *testing.T) {
 		})
 	}
 }
+
+func TestIntersectionSlices(t *testing.T) {
+	tests := []struct {
+		name string
+		arr1 []int
+		arr2 []int
+		want []int
+	}{
+		{
+			name: "both empty",
+			arr1: []int{},
+			arr2: []int{},
+			want: []int{},
+		},
+		{
+			name: "first empty",
+			arr1: []int{},
+			arr2: []int{1, 2, 3},
+			want: []int{},
+		},
+		{
+			name: "second empty",
+			arr1: []int{1, 2, 3},
+			arr2: []int{},
+			want: []int{},
+		},
+		{
+			name: "no intersection",
+			arr1: []int{1, 2, 3},
+			arr2: []int{4, 5, 6},
+			want: []int{},
+		},
+		{
+			name: "simple intersection",
+			arr1: []int{1, 2, 3},
+			arr2: []int{2, 3, 4},
+			want: []int{2, 3},
+		},
+		{
+			name: "with duplicates in both",
+			arr1: []int{1, 2, 2, 3},
+			arr2: []int{2, 2, 4},
+			want: []int{2, 2},
+		},
+		{
+			name: "order preserved from first",
+			arr1: []int{5, 1, 2, 3},
+			arr2: []int{1, 3, 5},
+			want: []int{5, 1, 3},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := intersectionSlices(tc.arr1, tc.arr2)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("intersectionSlices(%v, %v) = %v; want %v",
+					tc.arr1, tc.arr2, got, tc.want)
+			}
+		})
+	}
+}
