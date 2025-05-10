@@ -107,3 +107,17 @@ func intersectionSlices(arr1, arr2 []int) []int {
 
 	return res
 }
+
+/*
+Создание "зеркальной" мапы
+*/
+
+func mirrorMap(m map[string]int) map[int][]string {
+	res := make(map[int][]string, len(m))
+
+	for k, v := range m {
+		res[v] = append(res[v], k)
+	}
+
+	return res
+}

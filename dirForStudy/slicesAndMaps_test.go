@@ -2,6 +2,7 @@ package dirForStudy
 
 import (
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -280,6 +281,78 @@ func TestIntersectionSlices(t *testing.T) {
 			if !reflect.DeepEqual(got, tc.want) {
 				t.Errorf("intersectionSlices(%v, %v) = %v; want %v",
 					tc.arr1, tc.arr2, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestMirrorMap(t *testing.T) {
+	tests := []struct {
+		name  string
+		input map[string]int
+		want  map[int][]string
+	}{
+		{
+			name:  "empty map",
+			input: map[string]int{},
+			want:  map[int][]string{},
+		},
+		{
+			name:  "single pair",
+			input: map[string]int{"apple": 1},
+			want:  map[int][]string{1: {"apple"}},
+		},
+		{
+			name:  "multiple distinct values",
+			input: map[string]int{"a": 1, "b": 2, "c": 3},
+			want: map[int][]string{
+				1: {"a"},
+				2: {"b"},
+				3: {"c"},
+			},
+		},
+		{
+			name:  "grouping keys by same value",
+			input: map[string]int{"red": 10, "blue": 20, "green": 10, "yellow": 20},
+			want: map[int][]string{
+				10: {"green", "red"},
+				20: {"blue", "yellow"},
+			},
+		},
+		{
+			name:  "multiple groups with single and multiple",
+			input: map[string]int{"x": 0, "y": 1, "z": 0, "w": 2},
+			want: map[int][]string{
+				0: {"x", "z"},
+				1: {"y"},
+				2: {"w"},
+			},
+		},
+		{
+			name:  "keys with same prefix",
+			input: map[string]int{"aa": 5, "ab": 5, "ac": 6, "ad": 5},
+			want: map[int][]string{
+				5: {"aa", "ab", "ad"},
+				6: {"ac"},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc // capture range variable
+		t.Run(tc.name, func(t *testing.T) {
+			got := mirrorMap(tc.input)
+
+			// Sort slices in both got and want before comparing
+			for k := range got {
+				sort.Strings(got[k])
+			}
+			for k := range tc.want {
+				sort.Strings(tc.want[k])
+			}
+
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("groupKeysByValue(%v) = %v; want %v", tc.input, got, tc.want)
 			}
 		})
 	}
