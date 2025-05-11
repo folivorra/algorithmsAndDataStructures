@@ -607,3 +607,68 @@ func TestCombineMaps(t *testing.T) {
 		})
 	}
 }
+
+func TestGroupByStruct(t *testing.T) {
+	tests := []struct {
+		name  string
+		input []Item
+		want  map[string][]int
+	}{
+		{
+			name:  "empty slice",
+			input: []Item{},
+			want:  map[string][]int{},
+		},
+		{
+			name:  "single item",
+			input: []Item{{Category: "A", Value: 1}},
+			want:  map[string][]int{"A": {1}},
+		},
+		{
+			name: "multiple categories",
+			input: []Item{
+				{Category: "A", Value: 1},
+				{Category: "B", Value: 2},
+				{Category: "A", Value: 3},
+				{Category: "C", Value: 4},
+			},
+			want: map[string][]int{
+				"A": {1, 3},
+				"B": {2},
+				"C": {4},
+			},
+		},
+		{
+			name: "all same category",
+			input: []Item{
+				{Category: "X", Value: 5},
+				{Category: "X", Value: 6},
+				{Category: "X", Value: 7},
+			},
+			want: map[string][]int{"X": {5, 6, 7}},
+		},
+		{
+			name: "interleaved categories",
+			input: []Item{
+				{Category: "A", Value: 1},
+				{Category: "B", Value: 2},
+				{Category: "A", Value: 3},
+				{Category: "B", Value: 4},
+			},
+			want: map[string][]int{
+				"A": {1, 3},
+				"B": {2, 4},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := groupByStruct(tc.input)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("groupByStruct(%v) = %v; want %v", tc.input, got, tc.want)
+			}
+		})
+	}
+}

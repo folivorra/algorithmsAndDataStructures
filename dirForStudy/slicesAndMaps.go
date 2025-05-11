@@ -201,3 +201,22 @@ func combineMaps(m1, m2 map[string]int) map[string]int {
 
 	return res
 }
+
+/*
+Группировка элементов по признаку
+*/
+
+type Item struct {
+	Category string
+	Value    int
+}
+
+func groupByStruct(s []Item) map[string][]int {
+	res := make(map[string][]int)
+
+	for _, item := range s {
+		res[item.Category] = append(res[item.Category], item.Value)
+	}
+
+	return res
+}
