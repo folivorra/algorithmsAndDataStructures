@@ -672,3 +672,52 @@ func TestGroupByStruct(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteDuplicates(t *testing.T) {
+	tests := []struct {
+		name  string
+		input []string
+		want  []string
+	}{
+		{
+			name:  "empty slice",
+			input: []string{},
+			want:  []string{},
+		},
+		{
+			name:  "no duplicates",
+			input: []string{"a", "b", "c"},
+			want:  []string{"a", "b", "c"},
+		},
+		{
+			name:  "all duplicates",
+			input: []string{"x", "x", "x", "x"},
+			want:  []string{"x"},
+		},
+		{
+			name:  "mixed duplicates",
+			input: []string{"a", "b", "a", "c", "b", "d"},
+			want:  []string{"a", "b", "c", "d"},
+		},
+		{
+			name:  "adjacent duplicates",
+			input: []string{"foo", "foo", "bar", "bar", "baz", "baz"},
+			want:  []string{"foo", "bar", "baz"},
+		},
+		{
+			name:  "non-adjacent duplicates preserve order",
+			input: []string{"1", "2", "1", "3", "2", "4"},
+			want:  []string{"1", "2", "3", "4"},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := deleteDuplicates(tc.input)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("deleteDups(%v) = %v; want %v", tc.input, got, tc.want)
+			}
+		})
+	}
+}

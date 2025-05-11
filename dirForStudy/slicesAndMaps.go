@@ -220,3 +220,21 @@ func groupByStruct(s []Item) map[string][]int {
 
 	return res
 }
+
+/*
+Удаление дубликатов из слайса
+*/
+
+func deleteDuplicates(arr []string) []string {
+	res := make([]string, 0)
+	m := make(map[string]struct{})
+
+	for _, v := range arr {
+		if _, exists := m[v]; !exists {
+			m[v] = struct{}{}
+			res = append(res, v)
+		}
+	}
+
+	return res
+}
