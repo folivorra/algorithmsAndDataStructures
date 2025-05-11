@@ -1,6 +1,7 @@
 package dirForStudy
 
 import (
+	"math"
 	"reflect"
 	"sort"
 	"testing"
@@ -410,6 +411,78 @@ func TestMinAndMax(t *testing.T) {
 			if gotMin != tc.wantMin || gotMax != tc.wantMax {
 				t.Errorf("minAndMax(%v) = (%v, %v); want (%v, %v)",
 					tc.arr, gotMin, gotMax, tc.wantMin, tc.wantMax)
+			}
+		})
+	}
+}
+
+func TestFilterSlice(t *testing.T) {
+	tests := []struct {
+		name   string
+		arr    []int
+		filter func(int) bool
+		want   []int
+	}{
+		{
+			name:   "empty slice",
+			arr:    []int{},
+			filter: func(int) bool { return true },
+			want:   []int{},
+		},
+		{
+			name:   "no removal",
+			arr:    []int{1, 2, 3, 4},
+			filter: func(int) bool { return true },
+			want:   []int{1, 2, 3, 4},
+		},
+		{
+			name:   "remove all",
+			arr:    []int{1, 2, 3, 4},
+			filter: func(int) bool { return false },
+			want:   []int{},
+		},
+		{
+			name:   "remove evens",
+			arr:    []int{1, 2, 3, 4, 5},
+			filter: func(n int) bool { return n%2 != 0 },
+			want:   []int{1, 3, 5},
+		},
+		{
+			name:   "remove odds",
+			arr:    []int{1, 2, 3, 4, 5},
+			filter: func(n int) bool { return n%2 == 0 },
+			want:   []int{2, 4},
+		},
+		{
+			name: "remove non-primes",
+			arr:  []int{0, 1, 2, 3, 4, 5, 6, 7},
+			filter: func(n int) bool {
+				if n < 2 {
+					return false
+				}
+				for i := 2; i <= int(math.Sqrt(float64(n))); i++ {
+					if n%i == 0 {
+						return false
+					}
+				}
+				return true
+			},
+			want: []int{2, 3, 5, 7},
+		},
+		{
+			name:   "remove > threshold",
+			arr:    []int{1, 5, 10, 15, 20},
+			filter: func(n int) bool { return n <= 10 },
+			want:   []int{1, 5, 10},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := filterSlice(append([]int(nil), tc.arr...), tc.filter)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("filterSlice(%v) = %v; want %v", tc.arr, got, tc.want)
 			}
 		})
 	}

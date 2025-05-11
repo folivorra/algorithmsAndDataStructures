@@ -140,3 +140,19 @@ func minAndMax(arr []float64) (min, max float64) {
 
 	return
 }
+
+/*
+Фильтрация слайса
+*/
+
+func filterSlice(arr []int, filter func(int) bool) []int {
+	res := make([]int, 0)
+
+	for i := 0; i < len(arr); i++ {
+		if filter(arr[i]) {
+			res = append(res, arr[i])
+		}
+	}
+
+	return res
+}
