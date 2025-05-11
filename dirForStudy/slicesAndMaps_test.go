@@ -357,3 +357,60 @@ func TestMirrorMap(t *testing.T) {
 		})
 	}
 }
+
+func TestMinAndMax(t *testing.T) {
+	tests := []struct {
+		name    string
+		arr     []float64
+		wantMin float64
+		wantMax float64
+	}{
+		{
+			name:    "ascending",
+			arr:     []float64{1.1, 2.2, 3.3, 4.4},
+			wantMin: 1.1,
+			wantMax: 4.4,
+		},
+		{
+			name:    "descending",
+			arr:     []float64{5.5, 4.4, 3.3, 2.2},
+			wantMin: 2.2,
+			wantMax: 5.5,
+		},
+		{
+			name:    "all equal",
+			arr:     []float64{7.7, 7.7, 7.7},
+			wantMin: 7.7,
+			wantMax: 7.7,
+		},
+		{
+			name:    "mixed positive and negative",
+			arr:     []float64{-3.5, 0.0, 2.5, -1.2},
+			wantMin: -3.5,
+			wantMax: 2.5,
+		},
+		{
+			name:    "single element",
+			arr:     []float64{9.9},
+			wantMin: 9.9,
+			wantMax: 9.9,
+		},
+		{
+			name:    "with zeros",
+			arr:     []float64{0.0, -0.0, 0.0},
+			wantMin: 0.0,
+			wantMax: 0.0,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc // capture range variable
+		t.Run(tc.name, func(t *testing.T) {
+			gotMin, gotMax := minAndMax(tc.arr)
+			if gotMin != tc.wantMin || gotMax != tc.wantMax {
+				t.Errorf("minAndMax(%v) = (%v, %v); want (%v, %v)",
+					tc.arr, gotMin, gotMax, tc.wantMin, tc.wantMax)
+			}
+		})
+	}
+}
