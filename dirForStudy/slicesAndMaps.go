@@ -177,3 +177,27 @@ func splitMaps(arr []int, num int) [][]int {
 
 	return res
 }
+
+/*
+Объединение двух мап
+*/
+
+func combineMaps(m1, m2 map[string]int) map[string]int {
+	res := make(map[string]int)
+
+	for k, v := range m1 {
+		res[k] = v
+	}
+
+	for k, v := range m2 {
+		if _, exists := res[k]; !exists {
+			res[k] = v
+		} else {
+			if res[k] < v {
+				res[k] = v
+			}
+		}
+	}
+
+	return res
+}

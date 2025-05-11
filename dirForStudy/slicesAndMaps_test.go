@@ -544,3 +544,66 @@ func TestSplitMaps(t *testing.T) {
 		})
 	}
 }
+
+func TestCombineMaps(t *testing.T) {
+	tests := []struct {
+		name string
+		m1   map[string]int
+		m2   map[string]int
+		want map[string]int
+	}{
+		{
+			name: "both empty",
+			m1:   map[string]int{},
+			m2:   map[string]int{},
+			want: map[string]int{},
+		},
+		{
+			name: "first empty",
+			m1:   map[string]int{},
+			m2:   map[string]int{"a": 1, "b": 2},
+			want: map[string]int{"a": 1, "b": 2},
+		},
+		{
+			name: "second empty",
+			m1:   map[string]int{"x": 5, "y": 10},
+			m2:   map[string]int{},
+			want: map[string]int{"x": 5, "y": 10},
+		},
+		{
+			name: "no overlapping keys",
+			m1:   map[string]int{"a": 1, "b": 2},
+			m2:   map[string]int{"c": 3, "d": 4},
+			want: map[string]int{"a": 1, "b": 2, "c": 3, "d": 4},
+		},
+		{
+			name: "overlap m2 has higher values",
+			m1:   map[string]int{"a": 1, "b": 2},
+			m2:   map[string]int{"b": 5, "c": 3},
+			want: map[string]int{"a": 1, "b": 5, "c": 3},
+		},
+		{
+			name: "overlap m1 has higher values",
+			m1:   map[string]int{"a": 10, "b": 2},
+			m2:   map[string]int{"a": 5, "c": 3},
+			want: map[string]int{"a": 10, "b": 2, "c": 3},
+		},
+		{
+			name: "mixed overlaps",
+			m1:   map[string]int{"a": 1, "b": 8, "c": 3},
+			m2:   map[string]int{"a": 4, "b": 2, "d": 6},
+			want: map[string]int{"a": 4, "b": 8, "c": 3, "d": 6},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := combineMaps(tc.m1, tc.m2)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("combineMaps(%v, %v) = %v; want %v",
+					tc.m1, tc.m2, got, tc.want)
+			}
+		})
+	}
+}
