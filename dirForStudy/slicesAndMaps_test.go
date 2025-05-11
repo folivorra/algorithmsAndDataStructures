@@ -721,3 +721,66 @@ func TestDeleteDuplicates(t *testing.T) {
 		})
 	}
 }
+
+func TestFindBinary(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   []int
+		targets []int
+		want    []int
+	}{
+		{
+			name:    "no targets",
+			input:   []int{1, 2, 3},
+			targets: []int{},
+			want:    []int{},
+		},
+		{
+			name:    "all targets found",
+			input:   []int{1, 2, 3, 4, 5},
+			targets: []int{1, 3, 5},
+			want:    []int{1, 3, 5},
+		},
+		{
+			name:    "none found",
+			input:   []int{10, 20, 30},
+			targets: []int{1, 2, 3},
+			want:    []int{},
+		},
+		{
+			name:    "some found, some not",
+			input:   []int{2, 4, 6, 8},
+			targets: []int{1, 2, 3, 4, 8},
+			want:    []int{2, 4, 8},
+		},
+		{
+			name:    "duplicates in targets",
+			input:   []int{1, 3, 5, 7},
+			targets: []int{3, 3, 5, 5, 9},
+			want:    []int{3, 3, 5, 5},
+		},
+		{
+			name:    "unsorted targets preserved order",
+			input:   []int{1, 2, 3, 4, 5},
+			targets: []int{5, 1, 4},
+			want:    []int{5, 1, 4},
+		},
+		{
+			name:    "single element slice",
+			input:   []int{42},
+			targets: []int{42, 7},
+			want:    []int{42},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := findBinary(tc.input, tc.targets)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("findBinary(%v, %v) = %v; want %v",
+					tc.input, tc.targets, got, tc.want)
+			}
+		})
+	}
+}

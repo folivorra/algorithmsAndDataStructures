@@ -1,6 +1,7 @@
 package dirForStudy
 
 import (
+	"errors"
 	"sort"
 )
 
@@ -237,4 +238,38 @@ func deleteDuplicates(arr []string) []string {
 	}
 
 	return res
+}
+
+/*
+На входе слайс с интами, второй слайс с теми интами которые нужно найти.
+Использовать алгоритм бинарного посика и сформировать новый слайс с найденными значениями и вернуть его.
+*/
+
+func findBinary(input []int, targets []int) []int {
+	res := make([]int, 0)
+
+	if targets == nil || len(targets) == 0 {
+		return res
+	}
+
+	for _, target := range targets {
+		if _, err := binarySearch(input, target); err == nil {
+			res = append(res, target)
+		}
+	}
+
+	return res
+}
+
+func binarySearch(arr []int, target int) (int, error) {
+	mid := len(arr) / 2
+	if arr[mid] == target {
+		return mid, nil
+	} else if arr[mid] > target && len(arr) > 1 {
+		return binarySearch(arr[:mid], target)
+	} else if arr[mid] < target && len(arr) > 1 {
+		return binarySearch(arr[mid+1:], target)
+	} else {
+		return -1, errors.New("not found")
+	}
 }
