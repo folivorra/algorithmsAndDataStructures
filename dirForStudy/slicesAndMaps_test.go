@@ -487,3 +487,60 @@ func TestFilterSlice(t *testing.T) {
 		})
 	}
 }
+
+func TestSplitMaps(t *testing.T) {
+	tests := []struct {
+		name string
+		arr  []int
+		num  int
+		want [][]int
+	}{
+		{
+			name: "empty slice",
+			arr:  []int{},
+			num:  3,
+			want: [][]int{},
+		},
+		{
+			name: "chunk size greater than length",
+			arr:  []int{1, 2, 3},
+			num:  5,
+			want: [][]int{{1, 2, 3}},
+		},
+		{
+			name: "exact division",
+			arr:  []int{1, 2, 3, 4},
+			num:  2,
+			want: [][]int{{1, 2}, {3, 4}},
+		},
+		{
+			name: "non-exact division",
+			arr:  []int{1, 2, 3, 4, 5},
+			num:  2,
+			want: [][]int{{1, 2}, {3, 4}, {5}},
+		},
+		{
+			name: "chunk size of one",
+			arr:  []int{7, 8, 9},
+			num:  1,
+			want: [][]int{{7}, {8}, {9}},
+		},
+		{
+			name: "chunk size equal length",
+			arr:  []int{10, 11, 12},
+			num:  3,
+			want: [][]int{{10, 11, 12}},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := splitMaps(tc.arr, tc.num)
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("splitMaps(%v, %d) = %v; want %v",
+					tc.arr, tc.num, got, tc.want)
+			}
+		})
+	}
+}

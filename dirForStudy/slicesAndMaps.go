@@ -156,3 +156,24 @@ func filterSlice(arr []int, filter func(int) bool) []int {
 
 	return res
 }
+
+/*
+Разделение слайса (split)
+*/
+
+func splitMaps(arr []int, num int) [][]int {
+	res := make([][]int, 0)
+	iter := 0
+
+	if len(arr) == 0 || num < 1 {
+		return res
+	}
+
+	for i := 0; iter+num < len(arr); i++ {
+		res = append(res, arr[iter:iter+num])
+		iter += num
+	}
+	res = append(res, arr[iter:])
+
+	return res
+}
