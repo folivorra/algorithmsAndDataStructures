@@ -1,5 +1,7 @@
 package main
 
-func main() {
+import "algoAndDS/dirForStudy"
 
+func main() {
+	dirForStudy.RecoveryPanic()
 }
