@@ -398,7 +398,7 @@ func TestMinAndMax(t *testing.T) {
 		},
 		{
 			name:    "with zeros",
-			arr:     []float64{0.0, -0.0, 0.0},
+			arr:     []float64{0.0, 0.0, 0.0},
 			wantMin: 0.0,
 			wantMax: 0.0,
 		},

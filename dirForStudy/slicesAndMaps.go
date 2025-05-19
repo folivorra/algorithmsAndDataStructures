@@ -248,7 +248,7 @@ func deleteDuplicates(arr []string) []string {
 func findBinary(input []int, targets []int) []int {
 	res := make([]int, 0)
 
-	if targets == nil || len(targets) == 0 {
+	if len(targets) == 0 || targets == nil {
 		return res
 	}
 
