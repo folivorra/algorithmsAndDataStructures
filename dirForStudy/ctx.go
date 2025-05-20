@@ -3,6 +3,7 @@ package dirForStudy
 import (
 	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -117,5 +118,39 @@ func workerSignal(ctx context.Context, id int, wg *sync.WaitGroup) {
 			fmt.Printf("worker %d doing job...\n", id)
 			time.Sleep(1 * time.Second)
 		}
+	}
+}
+
+func ErrorGroup() {
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	group, ctx := errgroup.WithContext(context.Background())
+	// функция создает группу и контекст для этой группы, который отменится если кто то из группы завершится с ошибкой
+
+	for i := 0; i < 5; i++ {
+		i := i
+		// защита от замыкания
+		group.Go(func() error {
+			select {
+			case <-time.After(time.Second * time.Duration(rand.Intn(5)+1)):
+				if i == rand.Intn(5) {
+					return fmt.Errorf("worker %d finished with error", i)
+				}
+				// имитируем случайную ошибку и возвращаем ее -> отменяем контекст группы
+
+				fmt.Printf("worker %d done his job\n", i)
+				// если ошибки не было значит воркер выполнил свою работу
+				return nil
+			case <-ctx.Done():
+				// когда контекст группы отменяется - этот канал закрывается и мы возвращаем ошибку завершения группы
+				return ctx.Err()
+			}
+		})
+	}
+
+	// ждем выполнение всех горутин в группе и если ошибка ненулевая, то выводим ее, иначе все ок
+	if err := group.Wait(); err != nil {
+		fmt.Println("error:", err)
+	} else {
+		fmt.Println("worker finished without error")
 	}
 }
