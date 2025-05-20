@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"os"
+	"os/signal"
 	"sync"
 	"time"
 )
@@ -81,6 +83,38 @@ func ctxWorker(ctx context.Context, id int, wg *sync.WaitGroup) {
 			return
 		default:
 			fmt.Printf("worker %d doing job...\n", id) // демонсстрация работы
+			time.Sleep(1 * time.Second)
+		}
+	}
+}
+
+func GracefulShutdown() {
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt) // создание контекста который отлавливает прерывания на уровне ОС
+	defer cancel()
+
+	wg := &sync.WaitGroup{}
+
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go workerSignal(ctx, i, wg)
+	}
+
+	fmt.Println("program started, ctrl+c for finish")
+	wg.Wait()
+	fmt.Println("workers finished")
+}
+
+func workerSignal(ctx context.Context, id int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for {
+		select {
+		case <-ctx.Done():
+			fmt.Printf("worker %d stoped\n", id)
+			return
+			// ловим прерывание - прекращаем выполнение горутины и возвращаемся из функции
+		default:
+			fmt.Printf("worker %d doing job...\n", id)
 			time.Sleep(1 * time.Second)
 		}
 	}
