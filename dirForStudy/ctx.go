@@ -3,6 +3,8 @@ package dirForStudy
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -47,5 +49,39 @@ func workerForWorker(ctx context.Context) {
 		}
 		fmt.Println("workerForWorker doing job...")
 		time.Sleep(1 * time.Second)
+	}
+}
+
+func ContextWorker() {
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second) // задаем таймаут
+	wg := &sync.WaitGroup{}
+	defer cancel() // гарантированное освобождение ресурсов
+
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go ctxWorker(ctx, i, wg) // запуск 5 воркеров с таймаутом в 3 секунды
+	}
+
+	wg.Wait()
+}
+
+func ctxWorker(ctx context.Context, id int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	timeoutDuration := time.Duration(rand.Intn(5)) * time.Second
+	timeout := time.NewTimer(timeoutDuration) // создаем таймер который закроет канал по истечению 0-4 секунд
+	for {
+		select {
+		case <-timeout.C:
+			fmt.Printf("timeout for worker %d ❌\n", id) // воркер не успел по таймеру
+			return
+		case <-ctx.Done():
+			fmt.Printf("worker %d finished his job ✅\n", id) // воркер успел выполнить работу
+			return
+		default:
+			fmt.Printf("worker %d doing job...\n", id) // демонсстрация работы
+			time.Sleep(1 * time.Second)
+		}
 	}
 }
