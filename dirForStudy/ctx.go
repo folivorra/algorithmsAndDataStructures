@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -153,4 +154,38 @@ func ErrorGroup() {
 	} else {
 		fmt.Println("worker finished without error")
 	}
+}
+
+// атомики это примитивы синхронизации обеспечивающие атомарные операции с данными (чтение/запись),
+// они менее прожорливые чем мьютексы, но используются в простых структурах где необходимо
+// менять лишь одно поле (например, счетчик)
+
+type Counter struct {
+	value int64
+}
+
+func (c *Counter) Increment() {
+	atomic.AddInt64(&c.value, 1)
+}
+
+func (c *Counter) Get() int64 {
+	return atomic.LoadInt64(&c.value)
+}
+
+func AtomicGoroutine() {
+	wg := &sync.WaitGroup{}
+	c := &Counter{}
+
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := 0; j < 100; j++ {
+				c.Increment()
+			}
+		}()
+	}
+
+	wg.Wait()
+	fmt.Printf("counter %d\n", c.Get())
 }
