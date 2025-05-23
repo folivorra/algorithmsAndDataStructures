@@ -3,5 +3,5 @@ package main
 import "algoAndDS/dirForStudy"
 
 func main() {
-	dirForStudy.MultichannelInput()
+	dirForStudy.AnotherFanIn()
 }

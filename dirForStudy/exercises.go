@@ -3,6 +3,7 @@ package dirForStudy
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -96,4 +97,72 @@ func MultichannelInput() {
 			return
 		}
 	}
+}
+
+func TimeoutGoroutine() {
+	ch := make(chan int)
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	go func() {
+		time.Sleep(time.Duration(rand.Intn(4)) * time.Second)
+		ch <- 1
+	}()
+
+	select {
+	case <-ch:
+		fmt.Printf("значение пришло\n")
+	case <-time.After(2 * time.Second):
+		fmt.Println("таймаут")
+	}
+}
+
+func AnotherFanIn() {
+	chs := []chan int{
+		make(chan int),
+		make(chan int),
+		make(chan int),
+	}
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	res := anotherMerge(chs)
+
+	for _, ch := range chs {
+		go func(chan int) {
+			for i := 0; i < 10; i++ {
+				time.Sleep(time.Duration(rand.Intn(10)) * 200 * time.Millisecond)
+				ch <- rand.Intn(100)
+			}
+			close(ch)
+		}(ch)
+	}
+
+	for i := 0; i < 5; i++ {
+		fmt.Println(<-res)
+	}
+}
+
+func anotherMerge(chs []chan int) chan int {
+	res := make(chan int)
+	wg := &sync.WaitGroup{}
+
+	for _, ch := range chs {
+		wg.Add(1)
+		go func(chan int) {
+			defer wg.Done()
+			for {
+				val, ok := <-ch
+				if !ok {
+					return
+				}
+				res <- val
+			}
+		}(ch)
+	}
+
+	go func() {
+		wg.Wait()
+		close(res)
+	}()
+
+	return res
 }
