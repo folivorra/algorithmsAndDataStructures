@@ -166,3 +166,48 @@ func anotherMerge(chs []chan int) chan int {
 
 	return res
 }
+
+func AnotherFanOut() {
+	ch := make(chan int)
+	wg := &sync.WaitGroup{}
+
+	go func() {
+		for i := 1; i < 21; i++ {
+			ch <- i
+		}
+		close(ch)
+	}()
+
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go anotherWorker(i, ch, wg)
+	}
+
+	wg.Wait()
+}
+
+func anotherWorker(id int, in <-chan int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for val := range in {
+		fmt.Printf("worker %d done job %d\n", id+1, val)
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func BufferChan() {
+	ch := make(chan int, 3)
+
+	go func() {
+		for val := range ch {
+			time.Sleep(time.Second)
+			fmt.Printf("прочитано %d\n", val)
+		}
+	}()
+
+	for i := 0; i < 5; i++ {
+		ch <- i
+	}
+
+	fmt.Scanln()
+}
