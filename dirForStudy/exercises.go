@@ -211,3 +211,63 @@ func BufferChan() {
 
 	fmt.Scanln()
 }
+
+func DoneChannel() {
+	randomCh := make(chan int)
+	done := make(chan struct{})
+
+	go func() {
+		for {
+			select {
+			case randomCh <- rand.Intn(100):
+			case <-done:
+				fmt.Println("done closed")
+				return
+			}
+		}
+	}()
+
+	go func() {
+		time.Sleep(5 * time.Second)
+		close(done)
+	}()
+
+	for {
+		select {
+		case val := <-randomCh:
+			fmt.Printf("random - %d\n", val)
+			time.Sleep(500 * time.Millisecond)
+		case <-time.After(3 * time.Second):
+			fmt.Println("timeout")
+			return
+		}
+	}
+}
+
+func Semaphor() {
+	jobs := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	sem := make(chan struct{}, 3)
+	done := make(chan struct{})
+
+	comleted := 0
+	total := len(jobs)
+
+	for _, job := range jobs {
+		sem <- struct{}{}
+		go semWorker(sem, done, job)
+	}
+
+	for comleted < total {
+		<-done
+		comleted++
+	}
+
+	fmt.Println("all workers done")
+}
+
+func semWorker(sem chan struct{}, done chan struct{}, job int) {
+	time.Sleep(1 * time.Second)
+	fmt.Println("worker done ", job)
+	<-sem
+	done <- struct{}{}
+}
