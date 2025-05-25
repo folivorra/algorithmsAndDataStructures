@@ -93,6 +93,7 @@ func merge(ctx context.Context, chans ...<-chan int) (<-chan int, <-chan error) 
 	}
 
 	go func() {
+		// пайплайн / воркер пул для отловки блокировки
 		wg.Wait()
 		close(result)
 		close(err)

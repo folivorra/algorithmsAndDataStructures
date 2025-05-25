@@ -52,6 +52,14 @@ type MapRWMutex struct {
 	mu sync.RWMutex
 }
 
+// ttl - duration
+// serel - redis
+
+// get and set http handlers (clear)
+
+// перезаписывать данные спустя 5 секунд
+// сервисы должны завершаться в рамках приоритета
+
 func NewMapRWMutex() *MapRWMutex {
 	return &MapRWMutex{m: make(map[string]int)}
 }
